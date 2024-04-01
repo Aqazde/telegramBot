@@ -1,6 +1,6 @@
 require('dotenv').config();
+const mongoose = require('mongoose');
 const { Telegraf, Markup } = require('telegraf');
-
 const bot = new Telegraf(process.env.BOT_TOKEN, {
     polling: {
         interval: 300,
@@ -8,6 +8,204 @@ const bot = new Telegraf(process.env.BOT_TOKEN, {
     }
 });
 
+// Connect to MongoDB database
+mongoose.connect('mongodb+srv://user:password@webtech.yks5px6.mongodb.net/telegramBotTest', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => {
+    console.log('Connected to MongoDB');
+}).catch((error) => {
+    console.error('Error connecting to MongoDB:', error);
+});
+
+// Define mongoose schema for start command stats
+const startCommandSchema = new mongoose.Schema({
+    count: { type: Number, default: 0 }
+});
+// Create mongoose model
+const StartCommandStats = mongoose.model('StartCommandStats', startCommandSchema);
+
+// Define mongoose schema for message stats
+const aboutOlympiadSchema = new mongoose.Schema({
+    phrases: {
+        type: Map,
+        of: Number,
+        default: {}
+    },
+    uniqueUsers: {
+        type: [Number], // Array to store unique user IDs
+        default: []
+    }
+});
+// Create a model
+const AboutOlympiadModel = mongoose.model('AboutOlympiad', aboutOlympiadSchema);
+
+// Define mongoose schema for message stats
+const MainDatesSchema = new mongoose.Schema({
+    phrases: {
+        type: Map,
+        of: Number,
+        default: {}
+    },
+    uniqueUsers: {
+        type: [Number], // Array to store unique user IDs
+        default: []
+    }
+});
+// Create a model
+const MainDatesModel = mongoose.model('MainDates', MainDatesSchema);
+
+const ForgotLoginSchema = new mongoose.Schema({
+    phrases: {
+        type: Map,
+        of: Number,
+        default: {}
+    },
+    uniqueUsers: {
+        type: [Number], // Array to store unique user IDs
+        default: []
+    }
+});
+// Create a model
+const ForgotLoginModel = mongoose.model('ForgotLogin', ForgotLoginSchema);
+
+const ForgotPasswordSchema = new mongoose.Schema({
+    phrases: {
+        type: Map,
+        of: Number,
+        default: {}
+    },
+    uniqueUsers: {
+        type: [Number], // Array to store unique user IDs
+        default: []
+    }
+});
+// Create a model
+const ForgotPasswordModel = mongoose.model('ForgotPassword', ForgotPasswordSchema);
+
+const HowToStartSchema = new mongoose.Schema({
+    phrases: {
+        type: Map,
+        of: Number,
+        default: {}
+    },
+    uniqueUsers: {
+        type: [Number], // Array to store unique user IDs
+        default: []
+    }
+});
+// Create a model
+const HowToStartModel = mongoose.model('HowToStart', HowToStartSchema);
+
+const TechSupportSchema = new mongoose.Schema({
+    phrases: {
+        type: Map,
+        of: Number,
+        default: {}
+    },
+    uniqueUsers: {
+        type: [Number], // Array to store unique user IDs
+        default: []
+    }
+});
+// Create a model
+const TechSupportModel = mongoose.model('TechSupport', TechSupportSchema);
+
+const aboutOlympiadSchemaKZ = new mongoose.Schema({
+    phrases: {
+        type: Map,
+        of: Number,
+        default: {}
+    },
+    uniqueUsers: {
+        type: [Number], // Array to store unique user IDs
+        default: []
+    }
+});
+// Create a model based on the messageStatsSchema
+const AboutOlympiadModelKZ = mongoose.model('AboutOlympiadKZ', aboutOlympiadSchemaKZ);
+
+const MainDatesSchemaKZ = new mongoose.Schema({
+    phrases: {
+        type: Map,
+        of: Number,
+        default: {}
+    },
+    uniqueUsers: {
+        type: [Number], // Array to store unique user IDs
+        default: []
+    }
+});
+// Create a model
+const MainDatesModelKZ = mongoose.model('MainDatesKZ', MainDatesSchemaKZ);
+
+const ForgotLoginSchemaKZ = new mongoose.Schema({
+    phrases: {
+        type: Map,
+        of: Number,
+        default: {}
+    },
+    uniqueUsers: {
+        type: [Number], // Array to store unique user IDs
+        default: []
+    }
+});
+// Create a model
+const ForgotLoginModelKZ = mongoose.model('ForgotLoginKZ', ForgotLoginSchemaKZ);
+
+const ForgotPasswordSchemaKZ = new mongoose.Schema({
+    phrases: {
+        type: Map,
+        of: Number,
+        default: {}
+    },
+    uniqueUsers: {
+        type: [Number], // Array to store unique user IDs
+        default: []
+    }
+});
+// Create a model
+const ForgotPasswordModelKZ = mongoose.model('ForgotPasswordKZ', ForgotPasswordSchemaKZ);
+
+const HowToStartSchemaKZ = new mongoose.Schema({
+    phrases: {
+        type: Map,
+        of: Number,
+        default: {}
+    },
+    uniqueUsers: {
+        type: [Number], // Array to store unique user IDs
+        default: []
+    }
+});
+// Create a model
+const HowToStartModelKZ = mongoose.model('HowToStartKZ', HowToStartSchemaKZ);
+
+const TechSupportSchemaKZ = new mongoose.Schema({
+    phrases: {
+        type: Map,
+        of: Number,
+        default: {}
+    },
+    uniqueUsers: {
+        type: [Number], // Array to store unique user IDs
+        default: []
+    }
+});
+// Create a model
+const TechSupportModelKZ = mongoose.model('TechSupportKZ', TechSupportSchemaKZ);
+// Handle /start command
+bot.start(async (ctx) => {
+    try {
+        // Increment start command count in the database
+        await StartCommandStats.findOneAndUpdate({}, { $inc: { count: 1 } }, { upsert: true });
+        console.log('Start command usage updated in the database.');
+        // Your /start command logic here
+        ctx.reply('Выберите язык:' + '\n' + 'Тілді танданыз:', languagesKeyboard);
+    } catch (error) {
+        console.error('Error updating start command usage:', error);
+    }
+});
 
 const languagesKeyboard = Markup.inlineKeyboard([
     Markup.button.callback('Русский', 'russian'),
@@ -32,11 +230,6 @@ const mainMenuKeyboardKZ = Markup.keyboard([
     ['Техникалық ақаулар - тест тапсыра алмаймын'],
         ['Тілді өзгерту']
 ]).oneTime();
-
-
-bot.start((ctx) => {
-    ctx.reply('Выберите язык:' + '\n' + 'Тілді танданыз:', languagesKeyboard);
-});
 bot.hears('Сменить язык', (ctx) => {
     ctx.reply('Выберите язык:' + '\n' + 'Тілді танданыз:', languagesKeyboard);
 });
@@ -78,7 +271,7 @@ bot.hears('Басты бетке', (ctx) => {
 });
 
 // Об олимпиаде Мың бала
-bot.hears('Об олимпиаде Мың бала', (ctx) => {
+bot.hears('Об олимпиаде Мың бала', async (ctx) => {
     ctx.reply('Выберите интересующий вас вопрос:',
         Markup.keyboard([
             ['Кто сможет участвовать в олимпиаде?'],
@@ -90,14 +283,39 @@ bot.hears('Об олимпиаде Мың бала', (ctx) => {
             ['Можно ли подать апелляцию или пересдать тест?'],
             ['Что такое прокторинг? И почему тест 1 этапа можно сдать только через ноутбук или компьютер с web камерой?'],
             ['Как можно подготовиться и выиграть олимпиаду?'],
-            ['Как и где проходит 2 этап?']
+            ['Как и где проходит 2 этап?'],
+            ['На главную']
         ]).oneTime()
     );
+    try {
+        const userId = ctx.from.id;
+
+        let aboutOlympiadInstance = await AboutOlympiadModel.findOne({});
+        if (!aboutOlympiadInstance) {
+            // If no document is found, initialize with default values
+            aboutOlympiadInstance = new AboutOlympiadModel();
+        }
+
+        if (!aboutOlympiadInstance.uniqueUsers.includes(userId)) {
+            await aboutOlympiadInstance.updateOne({
+                $inc: { 'phrases.Об олимпиаде Мың бала': 1 },
+                $addToSet: { uniqueUsers: userId }
+            }, { upsert: true });
+            console.log(`Count for "Об олимпиаде Мың бала" updated in the database for user ${userId}.`);
+
+            // Your logic for handling the specific phrase here
+        } else {
+            console.log(`User ${userId} already sent "Об олимпиаде Мың бала".`);
+        }
+    } catch (error) {
+        console.error('Error updating count for "Об олимпиаде Мың бала":', error);
+    }
 });
 bot.hears('Кто сможет участвовать в олимпиаде?', (ctx) => {
     ctx.reply('Только зарегистрированные до 10 марта участники из 6 классов сельских школ', Markup.keyboard([
         ['На главную']
     ]).oneTime());
+
 });
 bot.hears('Учителя каких предметов могут претендовать на сертификат?', (ctx) => {
     ctx.reply('"Учителя слудующих предметов могут претендовать на сертификат:\n' +
@@ -170,7 +388,7 @@ bot.hears('Как и где проходит 2 этап?', (ctx) => {
 
 
 // Мың бала олимпиадасы туралы
-bot.hears('Мың бала олимпиадасы туралы', (ctx) => {
+bot.hears('Мың бала олимпиадасы туралы', async(ctx) => {
     ctx.reply('Сізді қызықтыратын сұрақты таңдаңыз:',
         Markup.keyboard([
             ['Олимпиадаға кім қатыса алады?'],
@@ -182,9 +400,32 @@ bot.hears('Мың бала олимпиадасы туралы', (ctx) => {
             ['Мен апелляцияға бере аламын ба немесе тестті қайта тапсыра аламын ба?'],
             ['Прокторинг деген не? Неліктен 1 кезеңді тек ноутбук немесе web камерасы бар компьютер арқылы өтуге болады?'],
             ['Олимпиадаға қалай дайындалып, жеңіске жетуге болады?'],
-            ['2 кезең қалай және қайда өтеді?']
+            ['2 кезең қалай және қайда өтеді?'],
+            ['Басты бетке']
         ]).oneTime()
     );
+    try {
+        const userId = ctx.from.id;
+        let aboutOlympiadInstanceKZ = await AboutOlympiadModelKZ.findOne({});
+        if (!aboutOlympiadInstanceKZ) {
+            // If no document is found, initialize with default values
+            aboutOlympiadInstanceKZ = new AboutOlympiadModelKZ();
+        }
+
+        if (!aboutOlympiadInstanceKZ.uniqueUsers.includes(userId)) {
+            await aboutOlympiadInstanceKZ.updateOne({
+                $inc: { 'phrases.Мың бала олимпиадасы туралы': 1 },
+                $addToSet: { uniqueUsers: userId }
+            }, { upsert: true });
+            console.log(`Count for "Мың бала олимпиадасы туралы" updated in the database for user ${userId}.`);
+
+            // Your logic for handling the specific phrase here
+        } else {
+            console.log(`User ${userId} already sent "Мың бала олимпиадасы туралы".`);
+        }
+    } catch (error) {
+        console.error('Error updating count for "Мың бала олимпиадасы туралы":', error);
+    }
 });
 
 bot.hears('Олимпиадаға кім қатыса алады?', (ctx) => {
@@ -257,7 +498,7 @@ bot.hears('2 кезең қалай және қайда өтеді?', (ctx) => {
 
 
 // Все важные сроки олимпиады
-bot.hears('Все важные сроки олимпиады', (ctx) => {
+bot.hears('Все важные сроки олимпиады', async(ctx) => {
     ctx.reply('Выберите интересующий вас вопрос:',
         Markup.keyboard([
             ['Когда будет проходить 1 этап олимпиады?'],
@@ -267,9 +508,33 @@ bot.hears('Все важные сроки олимпиады', (ctx) => {
             ['Когда победителям можно подать заявку в поступление в специализированные школы для одоренных детей?'],
             ['Когда можно получить сертификат финалиста?'],
             ['Когда можно получить диплом победителя?'],
-            ['Когда учителя могут получить благодарственные письма?']
+            ['Когда учителя могут получить благодарственные письма?'],
+            ['На главную']
         ]).oneTime()
     );
+    try {
+        const userId = ctx.from.id;
+
+        let MainDatesInstance = await MainDatesModel.findOne({});
+        if (!MainDatesInstance) {
+            // If no document is found, initialize with default values
+            MainDatesInstance = new MainDatesModel();
+        }
+
+        if (!MainDatesInstance.uniqueUsers.includes(userId)) {
+            await MainDatesInstance.updateOne({
+                $inc: { 'phrases.Все важные сроки олимпиады': 1 },
+                $addToSet: { uniqueUsers: userId }
+            }, { upsert: true });
+            console.log(`Count for "Все важные сроки олимпиады" updated in the database for user ${userId}.`);
+
+            // Your logic for handling the specific phrase here
+        } else {
+            console.log(`User ${userId} already sent "Все важные сроки олимпиады".`);
+        }
+    } catch (error) {
+        console.error('Error updating count for "Все важные сроки олимпиады":', error);
+    }
 });
 
 bot.hears('Когда будет проходить 1 этап олимпиады?', (ctx) => {
@@ -324,7 +589,7 @@ bot.hears('Когда учителя могут получить благода�
 });
 
 // Олимпиаданың барлық маңызды мерзімдері
-bot.hears('Олимпиаданың барлық маңызды мерзімдері', (ctx) => {
+bot.hears('Олимпиаданың барлық маңызды мерзімдері', async (ctx) => {
     ctx.reply('Сізді қызықтыратын сұрақты таңдаңыз:',
         Markup.keyboard([
             ['Олимпиаданың 1 кезеңі қашан өтеді?'],
@@ -334,9 +599,33 @@ bot.hears('Олимпиаданың барлық маңызды мерзімде
             ['Жеңімпаздар дарынды балаларға арналған мектептерге қашан сұраныс бере алады?'],
             ['Финалист сертификатын қашан алуға болады?'],
             ['Жеңімпаз дипломын қашан алуға болады?'],
-            ['Мұғалімдер алғыс хаттарды қашан ала алады?']
+            ['Мұғалімдер алғыс хаттарды қашан ала алады?'],
+            ['Басты бетке']
         ]).oneTime()
     );
+    try {
+        const userId = ctx.from.id;
+
+        let MainDatesInstanceKZ = await MainDatesModelKZ.findOne({});
+        if (!MainDatesInstanceKZ) {
+            // If no document is found, initialize with default values
+            MainDatesInstanceKZ = new MainDatesModelKZ();
+        }
+
+        if (!MainDatesInstanceKZ.uniqueUsers.includes(userId)) {
+            await MainDatesInstanceKZ.updateOne({
+                $inc: { 'phrases.Олимпиаданың барлық маңызды мерзімдері': 1 },
+                $addToSet: { uniqueUsers: userId }
+            }, { upsert: true });
+            console.log(`Count for "Олимпиаданың барлық маңызды мерзімдері" updated in the database for user ${userId}.`);
+
+            // Your logic for handling the specific phrase here
+        } else {
+            console.log(`User ${userId} already sent "Олимпиаданың барлық маңызды мерзімдері".`);
+        }
+    } catch (error) {
+        console.error('Error updating count for "Олимпиаданың барлық маңызды мерзімдері":', error);
+    }
 });
 
 bot.hears('Олимпиаданың 1 кезеңі қашан өтеді?', (ctx) => {
@@ -394,24 +683,70 @@ bot.hears('Мұғалімдер алғыс хаттарды қашан ала а
 
 
 // Не помню логин от личного кабинета
-bot.hears('Не помню логин от личного кабинета', (ctx) => {
+bot.hears('Не помню логин от личного кабинета', async (ctx) => {
     ctx.reply('Если вы не помните телефонный номер, который использовался в качестве логина, то: \n' +
         'Обратитесь в колл центр по номеру 87273100258 или напишите по ссылке в чат https://jivo.chat/UoLJfeceLg\n' +
         'Будьте готовы сообщить специалисту ИИН, чтобы узнать логин/тел.номер', Markup.keyboard([
         ['На главную']
     ]).oneTime());
+    try {
+        const userId = ctx.from.id;
+
+        let ForgotLoginInstance = await ForgotLoginModel.findOne({});
+        if (!ForgotLoginInstance) {
+            // If no document is found, initialize with default values
+            ForgotLoginInstance = new ForgotLoginModel();
+        }
+
+        if (!ForgotLoginInstance.uniqueUsers.includes(userId)) {
+            await ForgotLoginInstance.updateOne({
+                $inc: { 'phrases.Не помню логин от личного кабинета': 1 },
+                $addToSet: { uniqueUsers: userId }
+            }, { upsert: true });
+            console.log(`Count for "Не помню логин от личного кабинета" updated in the database for user ${userId}.`);
+
+            // Your logic for handling the specific phrase here
+        } else {
+            console.log(`User ${userId} already sent "Не помню логин от личного кабинета".`);
+        }
+    } catch (error) {
+        console.error('Error updating count for "Не помню логин от личного кабинета":', error);
+    }
 });
 // Жеке кабинетінің логині есімде жоқ
-bot.hears('Жеке кабинетінің логині есімде жоқ', (ctx) => {
+bot.hears('Жеке кабинетінің логині есімде жоқ', async (ctx) => {
     ctx.reply('Егер сіз логин ретінде пайдаланылған телефон нөмірі есіңізде жоқ болса, онда:\n' +
         ' 87273100258 нөмірі арқылы байланыс орталығына хабарласыңыз немесе сілтеме арқылы чатқа жазыңыз https://jivo.chat/UoLJfeceLg\n' +
         'ЖСН-ді қызметкерге хабарлауға дайын болыңыз', Markup.keyboard([
         ['Басты бетке']
     ]).oneTime());
+    try {
+        const userId = ctx.from.id;
+
+        let ForgotLoginInstanceKZ = await ForgotLoginModelKZ.findOne({});
+        if (!ForgotLoginInstanceKZ) {
+            // If no document is found, initialize with default values
+            ForgotLoginInstanceKZ = new ForgotLoginModelKZ();
+        }
+
+        if (!ForgotLoginInstanceKZ.uniqueUsers.includes(userId)) {
+            await ForgotLoginInstanceKZ.updateOne({
+                $inc: { 'phrases.Жеке кабинетінің логині есімде жоқ': 1 },
+                $addToSet: { uniqueUsers: userId }
+            }, { upsert: true });
+            console.log(`Count for "Жеке кабинетінің логині есімде жоқ" updated in the database for user ${userId}.`);
+
+            // Your logic for handling the specific phrase here
+        } else {
+            console.log(`User ${userId} already sent "Жеке кабинетінің логині есімде жоқ".`);
+        }
+    } catch (error) {
+        console.error('Error updating count for "Жеке кабинетінің логині есімде жоқ":', error);
+    }
 });
 
 // Не помню пароль от личного кабинета или не могу войти в личный кабинет
-bot.hears('Не помню пароль от личного кабинета или не могу войти в личный кабинет', (ctx) => {
+bot.hears('Не помню пароль от личного кабинета или не могу войти в личный кабинет', async (ctx) => {
     ctx.reply('Выберите подходящую проблему из списка', Markup.keyboard([
         ['Не помню пароль, выходит "Неправильный пароль"'],
         ['Не могу войти в личный кабинет, выходит "Авторизация невозможна"'],
@@ -419,6 +754,29 @@ bot.hears('Не помню пароль от личного кабинета и�
         ['Не могу войти в личный кабинет - Другое'],
         ['На главную']
     ]).oneTime());
+    try {
+        const userId = ctx.from.id;
+
+        let ForgotPasswordInstance = await ForgotPasswordModel.findOne({});
+        if (!ForgotPasswordInstance) {
+            // If no document is found, initialize with default values
+            ForgotPasswordInstance = new ForgotPasswordModel();
+        }
+
+        if (!ForgotPasswordInstance.uniqueUsers.includes(userId)) {
+            await ForgotPasswordInstance.updateOne({
+                $inc: { 'phrases.Не помню пароль от личного кабинета или не могу войти в личный кабинет': 1 },
+                $addToSet: { uniqueUsers: userId }
+            }, { upsert: true });
+            console.log(`Count for "Не помню пароль от личного кабинета или не могу войти в личный кабинет" updated in the database for user ${userId}.`);
+
+            // Your logic for handling the specific phrase here
+        } else {
+            console.log(`User ${userId} already sent "Не помню пароль от личного кабинета или не могу войти в личный кабинет".`);
+        }
+    } catch (error) {
+        console.error('Error updating count for "Не помню пароль от личного кабинета или не могу войти в личный кабинет":', error);
+    }
 });
 bot.hears('Не помню пароль, выходит "Неправильный пароль"', (ctx) => {
     ctx.reply('1. Перейтите по ссылке 1000bala.elumiti.kz/forget-password \n' +
@@ -504,7 +862,7 @@ bot.hears('Не могу войти в личный кабинет - Друго�
 });
 
 // Жеке кабинеттің құпия сөзі есімде жоқ немесе жеке кабинетке кіре алмаймын
-bot.hears('Жеке кабинеттің құпия сөзі есімде жоқ немесе жеке кабинетке кіре алмаймын', (ctx) => {
+bot.hears('Жеке кабинеттің құпия сөзі есімде жоқ немесе жеке кабинетке кіре алмаймын', async (ctx) => {
     ctx.reply('Тізімнен сәйкес мәселені таңдаңыз', Markup.keyboard([
         ['Құпия сөз есімде жоқ, "қате құпия сөз" қатесі шығады"'],
         ['Жеке кабинетке кіре алмаймын, "Авторизация мүмкін емес" қатесі шығады'],
@@ -512,6 +870,29 @@ bot.hears('Жеке кабинеттің құпия сөзі есімде жоқ
         ['Жеке кабинетке кіре алмаймын - басқа мәселе'],
         ['Басты бетке']
     ]).oneTime());
+    try {
+        const userId = ctx.from.id;
+
+        let ForgotPasswordInstanceKZ = await ForgotPasswordModelKZ.findOne({});
+        if (!ForgotPasswordInstanceKZ) {
+            // If no document is found, initialize with default values
+            ForgotPasswordInstanceKZ = new ForgotPasswordModelKZ();
+        }
+
+        if (!ForgotPasswordInstanceKZ.uniqueUsers.includes(userId)) {
+            await ForgotPasswordInstanceKZ.updateOne({
+                $inc: { 'phrases.Жеке кабинеттің құпия сөзі есімде жоқ немесе жеке кабинетке кіре алмаймын': 1 },
+                $addToSet: { uniqueUsers: userId }
+            }, { upsert: true });
+            console.log(`Count for "Жеке кабинеттің құпия сөзі есімде жоқ немесе жеке кабинетке кіре алмаймын" updated in the database for user ${userId}.`);
+
+            // Your logic for handling the specific phrase here
+        } else {
+            console.log(`User ${userId} already sent "Жеке кабинеттің құпия сөзі есімде жоқ немесе жеке кабинетке кіре алмаймын".`);
+        }
+    } catch (error) {
+        console.error('Error updating count for "Жеке кабинеттің құпия сөзі есімде жоқ немесе жеке кабинетке кіре алмаймын":', error);
+    }
 });
 bot.hears('Құпия сөз есімде жоқ, "қате құпия сөз" қатесі шығады"', (ctx) => {
     ctx.reply('1. 1000bala.elumiti.kz/forget-password Сілтемеге өтіңіз \n' +
@@ -602,6 +983,29 @@ bot.hears('Как начать тест?', async (ctx) => {
         Markup.button.callback('Далее', 'nextHowToStartTest_step_illustrations'),
         Markup.button.callback('На главную', 'toHomePageRU')
     ]));
+    try {
+        const userId = ctx.from.id;
+
+        let HowToStartInstance = await HowToStartModel.findOne({});
+        if (!HowToStartInstance) {
+            // If no document is found, initialize with default values
+            HowToStartInstance = new HowToStartModel();
+        }
+
+        if (!HowToStartInstance.uniqueUsers.includes(userId)) {
+            await HowToStartInstance.updateOne({
+                $inc: { 'phrases.Как начать тест?': 1 },
+                $addToSet: { uniqueUsers: userId }
+            }, { upsert: true });
+            console.log(`Count for "Как начать тест?" updated in the database for user ${userId}.`);
+
+            // Your logic for handling the specific phrase here
+        } else {
+            console.log(`User ${userId} already sent "Как начать тест?".`);
+        }
+    } catch (error) {
+        console.error('Error updating count for "Как начать тест?":', error);
+    }
 });
 bot.action('nextHowToStartTest_step_illustrations', async (ctx) => {
     await ctx.reply('1. Зайдите на наш официальный сайт 1000bala.elumiti.kz\n' +
@@ -712,6 +1116,29 @@ bot.hears('Тестті қалай бастауға болады?', async (ctx) 
         Markup.button.callback('Келесі', 'nextHowToStartTest_step_illustrationsKz'),
         Markup.button.callback('Басты бетке', 'toHomePageKZ')
     ]));
+    try {
+        const userId = ctx.from.id;
+
+        let HowToStartInstanceKZ = await HowToStartModelKZ.findOne({});
+        if (!HowToStartInstanceKZ) {
+            // If no document is found, initialize with default values
+            HowToStartInstanceKZ = new HowToStartModelKZ();
+        }
+
+        if (!HowToStartInstanceKZ.uniqueUsers.includes(userId)) {
+            await HowToStartInstanceKZ.updateOne({
+                $inc: { 'phrases.Тестті қалай бастауға болады?': 1 },
+                $addToSet: { uniqueUsers: userId }
+            }, { upsert: true });
+            console.log(`Count for "Тестті қалай бастауға болады?" updated in the database for user ${userId}.`);
+
+            // Your logic for handling the specific phrase here
+        } else {
+            console.log(`User ${userId} already sent "Тестті қалай бастауға болады?".`);
+        }
+    } catch (error) {
+        console.error('Error updating count for "Тестті қалай бастауға болады?":', error);
+    }
 });
 bot.action('nextHowToStartTest_step_illustrationsKz', async (ctx) => {
     await ctx.reply('1. Біздің ресми сайтына 1000bala.elumiti.kz кіріңіз\n' +
@@ -811,7 +1238,7 @@ bot.action('nextHowToStartTest_step_illustrations10Kz', async (ctx) => {
 });
 
 // Технические неполадки - не могу сдать тест
-bot.hears('Технические неполадки - не могу сдать тест', (ctx) => {
+bot.hears('Технические неполадки - не могу сдать тест', async (ctx) => {
     ctx.reply('Выберите конкретную проблему', Markup.keyboard([
         ['Нет доступных тестов'],
         ['После верификации прокторинга и входа в задания, не видно задания'],
@@ -819,6 +1246,29 @@ bot.hears('Технические неполадки - не могу сдать 
         ['После верификации и предоставления доступа к демонстации экрана идет сброс и обновление'],
         ['На этапе верификации при попытке сделать фотографию участника выходит "Ошибка"']
     ]).oneTime());
+    try {
+        const userId = ctx.from.id;
+
+        let TechSupportInstance = await TechSupportModel.findOne({});
+        if (!TechSupportInstance) {
+            // If no document is found, initialize with default values
+            TechSupportInstance = new TechSupportModel();
+        }
+
+        if (!TechSupportInstance.uniqueUsers.includes(userId)) {
+            await TechSupportInstance.updateOne({
+                $inc: { 'phrases.Технические неполадки - не могу сдать тест': 1 },
+                $addToSet: { uniqueUsers: userId }
+            }, { upsert: true });
+            console.log(`Count for "Технические неполадки - не могу сдать тест" updated in the database for user ${userId}.`);
+
+            // Your logic for handling the specific phrase here
+        } else {
+            console.log(`User ${userId} already sent "Технические неполадки - не могу сдать тест".`);
+        }
+    } catch (error) {
+        console.error('Error updating count for "Технические неполадки - не могу сдать тест":', error);
+    }
 });
 // Нет доступных тестов
 bot.hears('Нет доступных тестов', async (ctx) => {
@@ -994,7 +1444,7 @@ bot.action('AnotherPC', async (ctx) => {
 });
 
 // Техникалық ақаулар - тест тапсыра алмаймын
-bot.hears('Техникалық ақаулар - тест тапсыра алмаймын', (ctx) => {
+bot.hears('Техникалық ақаулар - тест тапсыра алмаймын', async (ctx) => {
     ctx.reply('Белгілі бір мәселені таңдаңыз', Markup.keyboard([
         ['Тесттер жоқ'],
         ['Прокторинг арқылы тексерісті өтіп және тестілеуге кірген соң тапсырмалар көрінбейді'],
@@ -1002,6 +1452,29 @@ bot.hears('Техникалық ақаулар - тест тапсыра алм�
         ['Тексеруден кейін және экранның демонстрациясына кіруге рұқсат берілгеннен кейін бағдарлама параметрлері арылтып, экран жаңартылады'],
         ['Тексеру кезеңінде қатысушының фотосуретін түсіруге тырысқанда қателік шығады']
     ]).oneTime());
+    try {
+        const userId = ctx.from.id;
+
+        let TechSupportInstanceKZ = await TechSupportModelKZ.findOne({});
+        if (!TechSupportInstanceKZ) {
+            // If no document is found, initialize with default values
+            TechSupportInstanceKZ = new TechSupportModelKZ();
+        }
+
+        if (!TechSupportInstanceKZ.uniqueUsers.includes(userId)) {
+            await TechSupportInstanceKZ.updateOne({
+                $inc: { 'phrases.Техникалық ақаулар - тест тапсыра алмаймын': 1 },
+                $addToSet: { uniqueUsers: userId }
+            }, { upsert: true });
+            console.log(`Count for "Техникалық ақаулар - тест тапсыра алмаймын" updated in the database for user ${userId}.`);
+
+            // Your logic for handling the specific phrase here
+        } else {
+            console.log(`User ${userId} already sent "Техникалық ақаулар - тест тапсыра алмаймын".`);
+        }
+    } catch (error) {
+        console.error('Error updating count for "Техникалық ақаулар - тест тапсыра алмаймын":', error);
+    }
 });
 //Тесттер жоқ
 bot.hears('Тесттер жоқ', async (ctx) => {
