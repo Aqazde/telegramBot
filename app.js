@@ -7,7 +7,6 @@ const bot = new Telegraf(process.env.BOT_TOKEN, {
         autoStart: true
     }
 });
-
 // Connect to MongoDB database
 mongoose.connect('mongodb+srv://user:password@webtech.yks5px6.mongodb.net/telegramBotTest', {
     useNewUrlParser: true,
@@ -197,9 +196,15 @@ const TechSupportModelKZ = mongoose.model('TechSupportKZ', TechSupportSchemaKZ);
 // Handle /start command
 bot.start(async (ctx) => {
     try {
+        // Check if the user has blocked the bot
+        if (!ctx.chat || !ctx.chat.id) {
+            console.log('User has blocked the bot or is unreachable.');
+            return;
+        }
         // Increment start command count in the database
         await StartCommandStats.findOneAndUpdate({}, { $inc: { count: 1 } }, { upsert: true });
         console.log('Start command usage updated in the database.');
+
         // Your /start command logic here
         ctx.reply('Выберите язык:' + '\n' + 'Тілді танданыз:', languagesKeyboard);
     } catch (error) {
