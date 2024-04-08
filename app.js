@@ -4,7 +4,7 @@ const { Telegraf, Markup } = require('telegraf');
 const bot = new Telegraf(process.env.BOT_TOKEN, {
     polling: {
         interval: 300,
-        autoStart: true
+        autoStart: false
     }
 });
 // Error handling middleware
@@ -21,7 +21,7 @@ bot.catch(async (err, ctx) => {
 });
 
 // Connect to MongoDB database
-mongoose.connect('mongodb+srv://user:password@webtech.yks5px6.mongodb.net/telegramBotTest', {
+mongoose.connect('mongodb+srv://test:test@webtech.yks5px6.mongodb.net/telegramBotTest', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => {
@@ -206,18 +206,28 @@ const TechSupportSchemaKZ = new mongoose.Schema({
 });
 // Create a model
 const TechSupportModelKZ = mongoose.model('TechSupportKZ', TechSupportSchemaKZ);
-// Handle /start command
-bot.start(async (ctx) => {
+async function startFunction(ctx) {
     try {
         // Increment start command count in the database
         await StartCommandStats.findOneAndUpdate({}, { $inc: { count: 1 } }, { upsert: true });
         console.log('Start command usage updated in the database.');
+
         // Your /start command logic here
-        ctx.reply('Выберите язык:' + '\n' + 'Тілді танданыз:', languagesKeyboard);
+        await ctx.reply('Выберите язык:' + '\n' + 'Тілді танданыз:', languagesKeyboard);
     } catch (error) {
-        console.error('Error updating start command usage:', error);
+        // Handle the error if the user has blocked the bot
+        if (error.response && error.response.error_code === 403) {
+            console.error('User has blocked the bot.');
+            return;
+        }
+
+        // Handle other errors
+        console.error('Error handling /start command:', error);
     }
-});
+}
+// Handle /start command
+bot.start(startFunction);
+
 
 const languagesKeyboard = Markup.inlineKeyboard([
     Markup.button.callback('Русский', 'russian'),
@@ -227,6 +237,12 @@ const languagesKeyboard = Markup.inlineKeyboard([
 // Inline keyboard handler
 bot.action(['russian', 'kazakh'], async (ctx) => {
     try {
+        // Check if the callback query is still valid
+        if (!ctx.update.callback_query || !ctx.update.callback_query.message) {
+            console.warn('Callback query is no longer valid.');
+            return;
+        }
+
         // Handle separate actions based on the callback data
         if (ctx.match[0] === 'russian') {
             sendWelcomeMessageRu(ctx);
