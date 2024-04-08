@@ -7,6 +7,18 @@ const bot = new Telegraf(process.env.BOT_TOKEN, {
         autoStart: true
     }
 });
+// Error handling middleware
+bot.catch(async (err, ctx) => {
+    try {
+        if (err.code === 403) {
+            console.error('Bot was blocked by the user:', err.description);
+            return;
+        }
+        console.error('Error:', err);
+    } catch (error) {
+        console.error('Error handling error:', error);
+    }
+});
 
 // Connect to MongoDB database
 mongoose.connect('mongodb+srv://user:password@webtech.yks5px6.mongodb.net/telegramBotTest', {
@@ -212,6 +224,22 @@ const languagesKeyboard = Markup.inlineKeyboard([
     Markup.button.callback('Қазақша', 'kazakh'),
 ]);
 
+// Inline keyboard handler
+bot.action(['russian', 'kazakh'], async (ctx) => {
+    try {
+        // Handle separate actions based on the callback data
+        if (ctx.match[0] === 'russian') {
+            sendWelcomeMessageRu(ctx);
+        } else if (ctx.match[0] === 'kazakh') {
+            sendWelcomeMessageKz(ctx);
+        }
+
+        ctx.answerCbQuery();
+    } catch (error) {
+        console.error('Error handling inline keyboard action:', error);
+    }
+});
+
 const mainMenuKeyboardRU = Markup.keyboard([
     ['Об олимпиаде Мың бала'],
     ['Все важные сроки олимпиады'],
@@ -237,35 +265,53 @@ bot.hears('Тілді өзгерту', (ctx) => {
     ctx.reply('Выберите язык:' + '\n' + 'Тілді танданыз:', languagesKeyboard);
 });
 async function sendWelcomeMessageRu(ctx) {
-    await ctx.reply('Добро пожаловать на Национальную олимпиаду Мың бала для учеников 6 класса сельских школ. \n' +
-        '\n' +
-        'На первом этапе олимпиады можно принять участие только с ноутбука или компьютера с веб-камерой, так как используется система прокторинга для проверки академической честности.\n' +
-        '\n' +
-        '1000bala.elumiti.kz\n' +
-        '8 727 310 02 58 call center (звонок платный)');
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    await ctx.reply('Чем мы вам можем помочь?', mainMenuKeyboardRU);
+    try {
+        await ctx.reply('Добро пожаловать на Национальную олимпиаду Мың бала для учеников 6 класса сельских школ. \n' +
+            '\n' +
+            'На первом этапе олимпиады можно принять участие только с ноутбука или компьютера с веб-камерой, так как используется система прокторинга для проверки академической честности.\n' +
+            '\n' +
+            '1000bala.elumiti.kz\n' +
+            '8 727 310 02 58 call center (звонок платный)');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await ctx.reply('Чем мы вам можем помочь?', mainMenuKeyboardRU);
+    } catch (error) {
+        // Handle the error if the user has blocked the bot
+        if (error.response && error.response.error_code === 403) {
+            console.error('User has blocked the bot.');
+            return;
+        }
+
+        // Handle other errors
+        console.error('Error sending welcome message in Russian:', error);
+    }
 }
 
-bot.action('russian', (ctx) => {
-    sendWelcomeMessageRu(ctx);
-});
+
 bot.hears('На главную', (ctx) => {
     sendWelcomeMessageRu(ctx);
 });
 async function sendWelcomeMessageKz(ctx) {
-    await ctx.reply('Ауыл мектептерінің 6 сынып оқушыларына арналған "Мың бала" ұлттық олимпиадасына қош келдіңіздер!\n' +
-        '\n' +
-        'Олимпиаданың бірінші кезеңінде академиялық адалдықты тексеру мақсатында прокторинг жүйесі қолданылады. Сондықтан тек ноутбук немесе веб-камерасы бар компьютер арқылы қатысуға болады.\n' +
-        '\n' +
-        '1000bala.elumiti.kz\n' +
-        '8 727 310 02 58 call center (қоңырау шалу - ақылы)');
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    await ctx.reply('Біз сізге қалай көмектесе аламыз?', mainMenuKeyboardKZ);
+    try {
+        await ctx.reply('Ауыл мектептерінің 6 сынып оқушыларына арналған "Мың бала" ұлттық олимпиадасына қош келдіңіздер!\n' +
+            '\n' +
+            'Олимпиаданың бірінші кезеңінде академиялық адалдықты тексеру мақсатында прокторинг жүйесі қолданылады. Сондықтан тек ноутбук немесе веб-камерасы бар компьютер арқылы қатысуға болады.\n' +
+            '\n' +
+            '1000bala.elumiti.kz\n' +
+            '8 727 310 02 58 call center (қоңырау шалу - ақылы)');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await ctx.reply('Біз сізге қалай көмектесе аламыз?', mainMenuKeyboardKZ);
+    } catch (error) {
+        // Handle the error if the user has blocked the bot
+        if (error.response && error.response.error_code === 403) {
+            console.error('User has blocked the bot.');
+            return;
+        }
+
+        // Handle other errors
+        console.error('Error sending welcome message in Kazakh:', error);
+    }
 }
-bot.action('kazakh', (ctx) => {
-    sendWelcomeMessageKz(ctx);
-});
+
 bot.hears('Басты бетке', (ctx) => {
     sendWelcomeMessageKz(ctx);
 });
