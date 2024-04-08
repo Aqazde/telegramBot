@@ -21,7 +21,7 @@ bot.catch(async (err, ctx) => {
 });
 
 // Connect to MongoDB database
-mongoose.connect('mongodb+srv://test:test@webtech.yks5px6.mongodb.net/telegramBotTest', {
+mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => {
